@@ -14,7 +14,7 @@ umi.use(signerIdentity(signer));
 
 (async () => {
     try {
-        const image = "https://arweave.net/9eXB70STe3evQ-TInp1i5W8CEJrcZBglq0nqkAQ9w1w"
+        const image = "https://arweave.net/ysXztW22dFbd1xDoE_naHBu12NBFmG1EzH3nN14baN4"
         const metadata = 
         {
             "name": "Generug - Movie",

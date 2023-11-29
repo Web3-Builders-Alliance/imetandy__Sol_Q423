@@ -15,7 +15,7 @@ umi.use(signerIdentity(signer));
 
 (async () => {
     try {
-        const content = await readFile("./cluster1/generug_3.png")
+        const content = await readFile("./cluster1/generugmovie.png")
         const image = createGenericFile(
             content, 
             "Generug_3.png", 

@@ -20,7 +20,7 @@ const mint = generateSigner(umi);
         umi,
         {
             mint,
-            uri: "https://arweave.net/9c6TnzJZggfqUBwn3kokceUkaQrD1trpWOyZL9S4ZHI",
+            uri: "https://arweave.net/iiTpvCvQxqY7z4LXSzGLcMWhRsLBpfS4QPnRQN_Zv_4",
             name: "MOVIE RUG",
             symbol: "RUG",
             sellerFeeBasisPoints: percentAmount(1)
