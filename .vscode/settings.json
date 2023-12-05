@@ -3,6 +3,7 @@
         "./rs/anchor-escrow/programs/anchor-escrow/Cargo.toml",
         "./rs/anchor-vault/programs/anchor-vault/Cargo.toml",
         "./rs/counter/programs/counter/Cargo.toml",
-        "./rs/default/Cargo.toml"
+        "./rs/default/Cargo.toml",
+        "./rs/anchor-lang-docs/programs/anchor-lang-docs/Cargo.toml",
     ]
 }
