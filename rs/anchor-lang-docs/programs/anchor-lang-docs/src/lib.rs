@@ -6,15 +6,21 @@ declare_id!("9vKqa7W8GfZiCsE6SicAZuiDPbDqquU4wTsp1zfg7VYE");
 #[program]
 pub mod anchor_lang_docs {
     use super::*;
+
+    pub fn initialize(ctx: Context<Initialize>, data: MyAccount) -> Result<()> {
+        ctx.accounts.my_account.data  = data.data;
+        ctx.accounts.my_account.age = data.age;
+        Ok(())
+    }
+
+
 //                               1          5         4
     pub fn set_data(ctx: Context<SetData>, data: MyAccount) -> Result<()> {
         require!(data.data < 100, MyError::DataTooLarge);
         //   1      2         3                 5
             ctx.accounts.my_account.set_inner(data);
             Ok(())
-        }
-        
-    
+        } 
     }
 
 
@@ -25,8 +31,18 @@ pub mod anchor_lang_docs {
 pub struct MyAccount {
 //    5
     data: u64,
-    mint: Pubkey,
     age: u8
+}
+
+
+
+#[derive(Accounts)]
+pub struct Initialize<'info> {
+    #[account(init, payer = owner, space = 8 + 8 + 32 + 1)]
+    pub my_account: Account<'info, MyAccount>,
+    #[account(mut)]
+    pub owner: Signer<'info>,
+    pub system_program: Program<'info, System>,
 }
 
 
@@ -38,17 +54,8 @@ pub struct SetData<'info> {
     #[account(mut)]
     //      3                         4
     pub my_account: Account<'info, MyAccount>,
-    #[account(
-        constraint = my_account.mint == token_account.mint,
-        has_one = owner,
-    )]
-    pub token_account: Account<'info,TokenAccount>,
+    #[account(mut)]
     pub owner: Signer<'info>,
-}
-#[derive(Accounts)]
-pub struct Initialize<'info> {
-    /// CHECK: This is not dangerous because we don't read or write from this account
-    pub potentially_dangerous: UncheckedAccount<'info>
 }
 
 #[error_code]
