@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./rs/src/programs/vote/solana-vote-q4/programs/solana-vote-q4/Cargo.toml"
+    ]
+}

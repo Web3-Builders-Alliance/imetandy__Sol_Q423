@@ -12,8 +12,8 @@ import {
   Address,
   BN,
 } from "@coral-xyz/anchor";
-import { WbaVault, IDL } from "./programs/wba_vault";
-import wallet from "./wallet/wba-wallet.json";
+import { WbaVault, IDL } from "../programs/wba_vault";
+import wallet from "../wba-wallet.json";
 
 // Import our keypair from the wallet file
 const keypair = Keypair.fromSecretKey(new Uint8Array(wallet));
@@ -30,13 +30,13 @@ const provider = new AnchorProvider(connection, new Wallet(keypair), {
 });
 
 // Create our program
-const program = new Program<WbaVault>(IDL, "<address>" as Address, provider);
+const program = new Program<WbaVault>(IDL, "D51uEDHLbWAxNfodfQDv7qkp8WZtxrhi3uganGbNos7o" as Address, provider);
 
 // Create a random keypair
-const vaultState = new PublicKey("<address>");
+const vaultState = new PublicKey("77FQ9XNx7e14fJJGNs3j8KjeJ36gW98EoVddp22bCsDC");
 
 // Create a random keypair
-// const closeVaultState = ???
+const closeVaultState = Keypair.generate();
 
 (async () => {
   try {
