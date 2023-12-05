@@ -1,19 +1,16 @@
 import * as anchor from "@coral-xyz/anchor";
-import { Program } from "@coral-xyz/anchor";
 import { Counter } from "../target/types/counter";
 
-describe("counter", () => {
+describe("Counter", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const program = anchor.workspace.Counter as Program<Counter>;
-
+  const program = anchor.workspace.Counter as anchor.Program<Counter>;
+  const counter = anchor.web3.Keypair.generate();
   const provider = anchor.getProvider();
-
   const signer = anchor.web3.Keypair.generate();
 
-  const userCounter = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from("counter"), signer.publicKey.toBuffer()], program.programId)[0];
-  const counterKeypair = anchor.web3.Keypair.generate();
+  let countValue = 0;
 
   const confirm = async (signature: string): Promise<string> => {
     const block = await provider.connection.getLatestBlockhash();
@@ -25,20 +22,26 @@ describe("counter", () => {
   }
 
   it("Airdrop 1 SOL!", async () => {
-    const tx = await provider.connection.requestAirdrop(counterKeypair.publicKey, 1e9).then(confirm);
+    const tx = await provider.connection.requestAirdrop(counter.publicKey, 1e9).then(confirm);
   });
   it("Initialize", async () => {
-    const tx = await program.methods.initialize().accounts({
+    const tx = await program.methods.initialize(new anchor.BN(countValue)).accounts({
       signer: signer.publicKey,
-      counter: counterKeypair.publicKey,
+      counter: counter.publicKey,
       systemProgram: program.programId,
     });    
   });  
-  it("Add 1 to counter", async () => {
-    const tx = await program.methods.increment();
+
+  it("Add x to counter", async () => {
+    const tx = await program.methods.increment(new anchor.BN(5));
+    const account = await program.account.counter.fetch(counter.publicKey);
+    console.log(account);
   });
-  it("Remove 1 from counter", async () => {
-    const tx = await program.methods.decrement();
+
+  it("Remove x from counter", async () => {
+    const tx = await program.methods.decrement(new anchor.BN(5));
+    let countValue = (await program.account.counter.fetch(counter.publicKey)).count.toNumber();
+    console.log(countValue);
     ;
   });
 
