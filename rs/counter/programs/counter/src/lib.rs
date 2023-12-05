@@ -9,15 +9,18 @@ pub mod counter {
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         ctx.accounts.counter.count = 0;
         ctx.accounts.counter.bump = ctx.bumps.counter;
+        msg!("Counter Initialized");
         Ok(())
     }
 
     pub fn increment(ctx: Context<Count>) -> Result<()> {
         ctx.accounts.counter.count += 1;
+        msg!("Counter Increased to: {}", ctx.accounts.counter.count);
         Ok(())
     }
     pub fn decrement(ctx: Context<Count>) -> Result<()> {
         ctx.accounts.counter.count -= 1;
+        msg!("Counter Decreased to: {}", ctx.accounts.counter.count);
         Ok(())
     
     }
