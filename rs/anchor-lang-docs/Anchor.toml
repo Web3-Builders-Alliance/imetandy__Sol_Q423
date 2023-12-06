@@ -5,7 +5,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-anchor_lang_docs = "9vKqa7W8GfZiCsE6SicAZuiDPbDqquU4wTsp1zfg7VYE"
+anchor_lang_docs = "G97vWGkrWRCDDnP1MaNJDLF5cewWjXv6NP23hoADRPvf"
 
 [registry]
 url = "https://api.apr.dev"
