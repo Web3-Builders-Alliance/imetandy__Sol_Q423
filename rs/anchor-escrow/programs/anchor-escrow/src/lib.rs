@@ -1,10 +1,22 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token::{self, Mint, TokenAccount, associated_token::AssociatedToken, Token};
 
 declare_id!("96WqQbjpABLV6YRX9KVAvcYozYnT9Da7QkpujjqGftCZ");
 
 #[program]
 pub mod anchor_escrow {
     use super::*;
+
+
+    pub fn deposit(ctx: Context<Deposit>, seed: u64, deposit_amount: u64, offer_amount: u64) -> Result(){
+
+
+        ok(())
+
+    }
+
+
+
 
     pub fn make(ctx: Context<Make>, seed: u64, deposit: u64, receive: u64) -> Result<()> {
         ctx.accounts.escrow.set_inner(Escrow {
@@ -28,11 +40,7 @@ pub mod anchor_escrow {
         );
 
         transfer(cpi_context, deposit);
-
     }
-
-
-
     
     pub fn take(ctx: Context<Initialize>) -> Result<()> {
         Ok(())
@@ -107,20 +115,46 @@ pub struct Make<'info> {
 
 
 
-pub struct Escrow {
-    seed: u64,
-    mint_a: Pubkey,
-    mint_b: Pubkey,
-    receive: u64,
-    bump: u8,
-    vault_bump: u8
-
-
+//////////////////
+///   DEPOSIT  ///
+//////////////////
+#[derive(Accounts)]
+#[instruction(seed: u64)]
+pub struct Deposit<'info> {
+    #[account(mut)]
+    maker: Signer<'info>,
+    maker_token_mint: Account<'info, Mint>, 
+    taker_token_mint: Account<'info, Mint>,
+    #[account(mut, associated_token::mint = maker_token_mint, associated_token::authority = maker)]
+    maker_ata_account: Account<'info, TokenAccount>,
+    #[account(init, payer = maker, associated_token::mint = maker_token_mint, associated_token::authority = auth)]
+    vault: Account<'info,TokenAccount>,
+    #[account(init, payer  = maker, seeds = [b"escrow", seed.to_le_bytes().as_ref()], bump, space = Escrow::LEN)]
+    escrow: Account<'info, Escrow>,
+    associated_token_program: Program<'info, AssociatedToken>,
+    system_program: Program<'info, System>,
+    token_program: Program<'info, Token>,
+    #[account(seeds = [b"auth"], bump)]
+    auth: UncheckedAccount<'info>,
 }
+
+impl Escrow {
+    const LEN: usize = 8 + 32*3 + 8*2 + 1*3;
+}
+#[account]
+pub struct Escrow {
+    pub maker: Pubkey,
+    pub maker_token_mint: Pubkey,
+    pub taker_token_mint: Pubkey,
+    pub amount: u64,
+    pub seed: u64,
+    pub auth_bump: u8,
+    pub vault_bump: u8,
+    pub escrow_bump: u8
+}
+
+
+
+
 pub struct Initialize {}
 
-impl Space for Escrow {
-    const INIT_SPACE: usize = 8 + 8 + 32 + 32 + 8 + 1 + 1;
-}
-
-impl<'info>
