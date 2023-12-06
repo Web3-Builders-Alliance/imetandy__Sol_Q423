@@ -40,12 +40,12 @@ const program = new Program<WbaVault>(IDL, "<address>" as Address, provider);
 const vaultState = new PublicKey("<address>");
 
 // Create the PDA for our enrollment account
-// const vaultAuth = ???
+const vaultAuth = PublicKey.findProgramAddressSync([Buffer.from("auth"), vaultState.toBuffer()], program.programId)[0];
 
 // Create the vault key
-// const vault = ???
+const vault = PublicKey.findProgramAddressSync([Buffer.from("vault"), vaultAuth.toBuffer()], program.programId)[0];
 
-// const token_decimals = ???
+const token_decimals = 9;
 
 // Mint address
 const mint = new PublicKey("<address>");
@@ -54,22 +54,30 @@ const mint = new PublicKey("<address>");
 (async () => {
   try {
     // Get the token account of the fromWallet address, and if it does not exist, create it
-    // const ownerAta = await getOrCreateAssociatedTokenAccount(
-    //     ???
-    // );
+    const ownerAta = await getOrCreateAssociatedTokenAccount(connection, keypair, mint, keypair.publicKey);
     // Get the token account of the fromWallet address, and if it does not exist, create it
-    // const vaultAta = await getOrCreateAssociatedTokenAccount(
-    //     ???
-    // );
-    // const signature = await program.methods
-    // .depositSpl(new BN(<number>))
-    // .accounts({
-    //     ???
-    // })
-    // .signers([
-    //     keypair
-    // ]).rpc();
-    // console.log(`Deposit success! Check out your TX here:\n\nhttps://explorer.solana.com/tx/${signature}?cluster=devnet`);
+    const vaultAta = await getOrCreateAssociatedTokenAccount(
+      connection,
+      keypair,
+      mint,
+      vault,
+    );
+     const signature = await program.methods
+     .depositSpl(new BN(token_decimals))
+     .accounts({
+        owner: keypair.publicKey,
+        vaultState,
+        vaultAuth,
+        ownerAta: ownerAta.address,
+        vaultAta: vaultAta.address,
+
+        tokenProgram: TOKEN_PROGRAM_ID,
+        systemProgram: SystemProgram.programId
+     })
+     .signers([
+      keypair
+    ]).rpc();
+    console.log(`Deposit success! Check out your TX here:\n\nhttps://explorer.solana.com/tx/${signature}?cluster=devnet`);
   } catch (e) {
     console.error(`Oops, something went wrong: ${e}`);
   }

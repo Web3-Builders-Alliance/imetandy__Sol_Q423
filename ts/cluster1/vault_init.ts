@@ -5,13 +5,14 @@ import {
   PublicKey,
   Commitment,
 } from "@solana/web3.js";
-
 import { Program, Wallet, AnchorProvider, Address } from "@coral-xyz/anchor";
 import { WbaVault, IDL } from "../programs/wba_vault";
 import wallet from "../wba-wallet.json";
+
 /// J8qKEmQpadFeBuXAVseH8GNrvsyBhMT8MHSVD3enRgJz
 // decode the base58 private key to a buffer
 const buffer = wallet;
+
 // convert the buffer to a Uint8Array
 const uint8ArrayPrivateKey = new Uint8Array(wallet);
 const keypair = Keypair.fromSecretKey(new Uint8Array(uint8ArrayPrivateKey));

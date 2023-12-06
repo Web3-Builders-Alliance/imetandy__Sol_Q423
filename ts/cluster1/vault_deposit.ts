@@ -34,7 +34,7 @@ const provider = new AnchorProvider(connection, new Wallet(keypair), {
 const program = new Program<WbaVault>(IDL, "D51uEDHLbWAxNfodfQDv7qkp8WZtxrhi3uganGbNos7o" as Address, provider);
 
 // Create a random keypair
-const vaultState = new PublicKey("77FQ9XNx7e14fJJGNs3j8KjeJ36gW98EoVddp22bCsDC");
+const vaultState = new PublicKey("4St9WLA6LgsxJ3u2Jb4Uwi3yZkCbGQLZC4gKnY8fFiZh");
 // Create the PDA for our enrollment account
 const vaultAuth = PublicKey.findProgramAddressSync([Buffer.from("auth"), vaultState.toBuffer()], program.programId)[0];
 
