@@ -7,6 +7,7 @@ pub mod anchor_lang_docs {
     use super::*;
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         ctx.accounts.my_account.data = 0;
+        ctx.accounts.my_account.bump = ctx.bumps.my_account;
         Ok(())
     }
 
@@ -22,7 +23,8 @@ pub mod anchor_lang_docs {
 #[account]
 #[derive(Default)]
 pub struct MyAccount {
-    pub data: u64
+    pub data: u64,
+    pub bump: u8
 }
 
 #[derive(Accounts)]
@@ -30,7 +32,13 @@ pub struct Initialize<'info> {
     #[account(
         init, 
         payer = payer, 
-        space = 8 + 8)]
+        seeds = [
+            b"my_account", 
+            payer.key().as_ref()
+            ],
+        bump,
+        space = 8 + 8 + 1
+    )]
     pub my_account: Account<'info, MyAccount>,
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -39,10 +47,13 @@ pub struct Initialize<'info> {
 
 #[derive(Accounts)]
 pub struct SetData<'info> {
-    #[account(mut, seeds = [
-        b"my_account".as_ref(),
-        my_account.key().as_ref()
-    ], bump)]
+    #[account(
+        mut,
+        seeds = [
+            b"my_account", 
+            payer.key().as_ref()],
+            bump = my_account.bump,
+    )]
     pub my_account: Account<'info, MyAccount>,
     #[account(mut)]
     pub payer: Signer<'info>,
