@@ -6,21 +6,18 @@ declare_id!("DPXqfPv4i5NkU4ENmgQLAfD2LWKpYLyzxFFsKaFsCstm");
 pub mod counter {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>, count_value: u64) -> Result<()> {
-        ctx.accounts.counter.count = count_value;
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        ctx.accounts.counter.count = 0;
         ctx.accounts.counter.bump = ctx.bumps.counter;
-        msg!("Counter Initialized");
         Ok(())
     }
 
     pub fn increment(ctx: Context<Count>, count_value: u64) -> Result<()> {
         ctx.accounts.counter.count += count_value;
-        msg!("Counter Increased to: {}", ctx.accounts.counter.count);
         Ok(())
     }
     pub fn decrement(ctx: Context<Count>, count_value: u64) -> Result<()> {
         ctx.accounts.counter.count -= count_value;
-        msg!("Counter Decreased to: {}", ctx.accounts.counter.count);
         Ok(())
     
     }
@@ -28,8 +25,6 @@ pub mod counter {
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
-    #[account(mut)]
-    pub signer: Signer<'info>,
     #[account(
         init,
         payer = signer, 
@@ -41,13 +36,13 @@ pub struct Initialize<'info> {
             space = Counter::INIT_SPACE,
     )]
     pub counter: Account<'info, Counter>,
-    pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct Count<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
+    pub system_program: Program<'info, System>,
+}
+ 
+#[derive(Accounts)]
+pub struct Count<'info> {
     #[account(
         mut, 
         seeds = [
@@ -57,9 +52,12 @@ pub struct Count<'info> {
             bump = counter.bump,
     )]
     pub counter: Account<'info, Counter>,
+    #[account(mut)]
+    pub signer: Signer<'info>,
 }
 
 #[account]
+#[derive(Default)]
 pub struct Counter {
     pub count: u64,
     pub bump: u8,
@@ -69,4 +67,3 @@ pub struct Counter {
 impl Space for Counter {
     const INIT_SPACE: usize = 8 + 8 + 1; // Anchor descriminator + counter + bump
 }
-
