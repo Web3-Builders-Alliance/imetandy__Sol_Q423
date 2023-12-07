@@ -5,5 +5,9 @@
         "./rs/counter/programs/counter/Cargo.toml",
         "./rs/default/Cargo.toml",
         "./rs/anchor-lang-docs/programs/anchor-lang-docs/Cargo.toml",
+        "./rs/anchor-escrow/programs/anchor-escrow/Cargo.toml",
+        "./rs/anchor-escrow/programs/anchor-escrow/Cargo.toml",
+        "./rs/anchor-escrow/programs/anchor-escrow/Cargo.toml",
+        "./rs/anchor-escrow/programs/anchor-escrow/Cargo.toml"
     ]
 }

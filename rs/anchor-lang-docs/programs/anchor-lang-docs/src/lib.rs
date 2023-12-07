@@ -10,7 +10,7 @@ pub mod anchor_lang_docs {
         ctx.accounts.my_account.bump = ctx.bumps.my_account;
         Ok(())
     }
-
+ 
 
 
     pub fn set_data(ctx: Context<SetData>, data: u64) -> Result<()> {
@@ -58,4 +58,3 @@ pub struct SetData<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 }
-
