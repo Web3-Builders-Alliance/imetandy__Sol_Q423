@@ -6,14 +6,11 @@ use crate::state::Escrow;
 ///   Take     ///
 //////////////////
 #[derive(Accounts)]
-#[instruction(seed: u64)]
 pub struct Take<'info> {
     // Taker
-    #[account(mut)]
-    taker: Signer<'info>,
+    #[account(mut)] taker: Signer<'info>,
     // Maker
-    #[account(mut)]
-    maker: SystemAccount<'info>,
+    #[account(mut)] maker: SystemAccount<'info>,
     // Mints
     mint_a: Account<'info, Mint>, 
     mint_b: Account<'info, Mint>,
@@ -22,27 +19,25 @@ pub struct Take<'info> {
     // Create ATA for taker for mint_a if req
     // Create ATA for maker for mint_b if req
     #[account(
-        mut, 
-        associated_token::mint = mint_b, 
-        associated_token::authority = taker
-    )]
-    taker_ata_b: Account<'info, TokenAccount>,
-
-    #[account(
         init_if_needed, 
         payer = taker,
         associated_token::mint = mint_a, 
-        associated_token::authority = maker
-    )]
-    taker_ata_a: Account<'info, TokenAccount>,
+        associated_token::authority = taker
+    )] taker_ata_a: Account<'info, TokenAccount>,
+    
+    #[account(
+        mut, 
+        associated_token::mint = mint_b, 
+        associated_token::authority = taker
+    )] taker_ata_b: Account<'info, TokenAccount>,
+
 
     #[account(
         init_if_needed,
         payer = taker,
         associated_token::mint = mint_b,
         associated_token::authority = maker
-    )]
-    maker_ata_b: Account<'info, TokenAccount>,
+    )] maker_ata_b: Account<'info, TokenAccount>,
     // Escrow
     #[account(
         mut,
@@ -51,15 +46,14 @@ pub struct Take<'info> {
         bump = escrow.escrow_bump,
         has_one = mint_a,
         has_one = mint_b
-    )]
-    escrow: Account<'info, Escrow>,
+    )] escrow: Account<'info, Escrow>,
     // Vault
     #[account(
         mut,
         associated_token::mint = mint_a,
-        associated_token::authority = maker
-    )]
-    vault: Account<'info,TokenAccount>,
+        associated_token::authority = escrow
+    )] vault: Account<'info,TokenAccount>,
+    
     // Program Accounts
     associated_token_program: Program<'info, AssociatedToken>,
     system_program: Program<'info, System>,
