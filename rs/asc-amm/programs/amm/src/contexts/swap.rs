@@ -83,8 +83,7 @@ impl<'info> Swap <'info> {
         false => LiquidityPair::Y,
     };
 
-    let res = curve.swap(pair, amount, min)
-    .map_err(AmmError::from)?;
+    let res = curve.swap(pair, amount, min).map_err(AmmError::from);
 
     self.deposit_tokens(is_x, res.deposit)?;
     self.withdraw_tokens(is_x, res.withdraw)?;

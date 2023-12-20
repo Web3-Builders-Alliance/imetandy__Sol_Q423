@@ -17,33 +17,33 @@ pub struct Initialize<'info> {
         bump,
         mint::decimals = 6,
         mint::authority = auth,
-    )]
-    pub lp_mint: InterfaceAccount<'info, Mint>,
+    )] pub lp_mint: InterfaceAccount<'info, Mint>,
+
     #[account(
         init,
         payer = initializer,
         associated_token::mint = mint_x,
         associated_token::authority = auth,
-    )]
-    pub vault_x: InterfaceAccount<'info, TokenAccount>,
+    )] pub vault_x: InterfaceAccount<'info, TokenAccount>,
+    
     #[account(
         init,
         payer = initializer,
         associated_token::mint = mint_y,
         associated_token::authority = auth,
-    )]
-    pub vault_y: InterfaceAccount<'info, TokenAccount>,
+    )] pub vault_y: InterfaceAccount<'info, TokenAccount>,
+    
     /// CHECK: This account is only used for signing purposes
-    #[account(seeds = [b"auth"], bump)]
-    pub auth: UncheckedAccount<'info>,
+    #[account(seeds = [b"auth"], bump)] pub auth: UncheckedAccount<'info>,
+    
     #[account(
         init,
         payer = initializer,
         seeds = [b"config", seed.to_le_bytes().as_ref()],
         bump,
         space = Config::INIT_SPACE,
-    )]
-    pub config: Account<'info, Config>,
+    )] pub config: Account<'info, Config>,
+    
     pub system_program: Program<'info, System>,
     pub token_program: Interface<'info, TokenInterface>,
     pub associated_token_program: Program<'info, AssociatedToken>, 
