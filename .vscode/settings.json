@@ -1,6 +1,7 @@
 {
     "rust-analyzer.linkedProjects": [
-        "./rs/asc-amm/programs/amm/Cargo.toml",
+        "./capstone/endcoin/programs/endcoin/Cargo.toml",
         "./capstone/endcoin/programs/endcoin/Cargo.toml"
-    ]
+    ],
+    "rust-analyzer.showUnlinkedFileNotification": false
 }

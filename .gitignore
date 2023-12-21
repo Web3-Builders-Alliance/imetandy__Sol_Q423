@@ -5,3 +5,5 @@ target
 *.png
 test-ledger
 test-ledger/*.*
+*avhrr*
+*.nc
