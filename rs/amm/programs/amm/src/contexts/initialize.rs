@@ -1,55 +1,53 @@
+use crate::{errors::AmmError, Config};
 use anchor_lang::prelude::*;
-use anchor_spl::token::{Mint, TokenAccount};
-use anchor_spl::associated_token::AssociatedToken;
-use anchor_spl::token_interface::{TokenInterface};
-use crate::state::Config;
-use crate::errors::AmmError;
+use anchor_spl::{
+    associated_token::AssociatedToken,
+    token::Token,
+    token_interface::{Mint, TokenAccount},
+};
 
 #[derive(Accounts)]
 #[instruction(seed: u64)]
 pub struct Initialize<'info> {
-    #[account(mut)] pub initializer: Signer<'info>,
-    
-    pub mint_x: InterfaceAccount<'info, Mint>, // Allows for Token 2022!!!
-    pub mint_y: InterfaceAccount<'info, Mint>, // Allows for Token 2022!!!
-    
-    #[account(init,
-    seeds = [b"lp", config.key().as_ref()
-    ],
-    payer = initializer,
-    bump,
-    mint::decimals = 6,
-    mint::authority = auth,)
-    ] pub lp_mint: InterfaceAccount<'info, Mint>,
-
+    #[account(mut)]
+    pub payer: Signer<'info>,
+    pub mint_x: InterfaceAccount<'info, Mint>,
+    pub mint_y: InterfaceAccount<'info, Mint>,
     #[account(
         init,
-        payer = initializer,
+        payer = payer,
+        seeds = [b"lp", config.key.as_ref()],
+        bump,
+        mint::decimals = 6,
+        mint::authority = auth,
+    )]
+    pub mint_lp: InterfaceAccount<'info, Mint>,
+    #[account(
+        init,
+        payer = payer,
         associated_token::mint = mint_x,
-        associated_token::authority = initializer,
-    )] pub vault_x: InterfaceAccount<'info, TokenAccount>,
-    
+        associated_token::authority = auth
+    )]
+    pub vault_x: InterfaceAccount<'info, TokenAccount>,
     #[account(
         init,
-        payer = initializer,
+        payer = payer,
         associated_token::mint = mint_y,
-        associated_token::authority = initializer,
-    )] pub vault_y: InterfaceAccount<'info, TokenAccount>,
-
-    #[account(
-    seeds = [b"auth"], bump)
-    ] pub auth: UncheckedAccount<'info>,
-    
+        associated_token::authority = auth
+    )]
+    pub vault_y: InterfaceAccount<'info, TokenAccount>,
+    #[account(seeds = [b"auth", config.key().as_ref()], bump)]
+    pub auth: UncheckedAccount<'info>,
     #[account(
         init,
-        payer = initializer,
+        payer = payer,
         seeds = [b"config", seed.to_le_bytes().as_ref()],
         bump,
         space = Config::INIT_SPACE,
-    )] pub config: Account<'info, Config>,
-    
+    )]
+    pub config: Account<'info, Config>,
     pub system_program: Program<'info, System>,
-    pub token_program: Interface<'info, TokenInterface>,
+    pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
@@ -61,23 +59,20 @@ impl<'info> Initialize<'info> {
         fee: u16,
         authority: Option<Pubkey>,
     ) -> Result<()> {
-        
         require!(fee <= 10000, AmmError::InvalidFee);
-        self.config.set_inner(
-            Config {
-                seed,
-                authority,
-                mint_x: self.mint_x.key(),
-                mint_y: self.mint_y.key(),
-                fee,
-                locked: false,
-                auth_bump: bumps.auth,
-                config_bump: bumps.config,
-                lp_bump: bumps.lp_mint,
-            });
 
+        let (auth_bump, config_bump, lp_bump) = (bumps.auth, bumps.config, bumps.mint_lp);
+
+        self.config.init(
+            seed,
+            authority,
+            self.mint_x.key(),
+            self.mint_y.key(),
+            fee,
+            auth_bump,
+            lp_bump,
+            config_bump,
+        );
         Ok(())
     }
-    
-
 }

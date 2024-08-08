@@ -1,7 +1,9 @@
 {
     "rust-analyzer.linkedProjects": [
-        "./capstone/endcoin/programs/endcoin/Cargo.toml",
-        "./capstone/endcoin/programs/endcoin/Cargo.toml"
+        "./rs/anchor-escrow/programs/anchor-escrow/Cargo.toml",
+        "./rs/anchor-lang-docs/programs/anchor-lang-docs/Cargo.toml",
+        "./rs/anchor-vault/programs/anchor-vault/Cargo.toml",
+        "./rs/amm/programs/amm/Cargo.toml",
     ],
     "rust-analyzer.showUnlinkedFileNotification": false
 }

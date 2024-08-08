@@ -1,6 +1,6 @@
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults"
 import { createSignerFromKeypair, signerIdentity, generateSigner, percentAmount } from "@metaplex-foundation/umi"
-import { createNft, mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
+import { createFungible, createFungibleAsset, createNft, mplTokenMetadata } from "@metaplex-foundation/mpl-token-metadata";
 
 import wallet from "../wba-wallet.json"
 import base58 from "bs58";
@@ -25,7 +25,9 @@ const mint = generateSigner(umi);
             symbol: "RUG",
             sellerFeeBasisPoints: percentAmount(1)
         }
-    )
+        )
+
+
     let result = await tx.sendAndConfirm(umi);
     const signature = base58.encode(result.signature);
     

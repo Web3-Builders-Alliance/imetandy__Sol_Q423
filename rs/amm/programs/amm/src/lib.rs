@@ -1,13 +1,16 @@
 use anchor_lang::prelude::*;
-pub mod errors;
+mod state;
+use state::*;
+mod contexts;
+use contexts::*;
+mod errors;
+mod helpers;
+pub use errors::AmmError;
 
 declare_id!("FVDa19xM6SJMZ7Wi8B1k2KgPSJGGA8DeDhS62aG4xmGu");
 
-pub mod state;
-pub use state::*;
 
-pub mod contexts;
-pub use contexts::*;
+
 
 #[program]
 pub mod amm {
@@ -19,10 +22,33 @@ pub mod amm {
         fee: u16,
         authority: Option<Pubkey>,
     ) -> Result<()> {
-        ctx.accounts.init(&ctx.bumps, seed, fee, authority);
+        ctx.accounts.init(&ctx.bumps, seed, fee, authority)?;
+        Ok(())
+    }
+
+    pub fn deposit(
+        ctx: Context<Deposit>,
+        amount: u64,
+        max_x: u64,
+        max_y: u64,
+        expiration: i64,
+    ) -> Result<()> {
+        ctx.accounts.deposit(amount, max_x, max_y, expiration)?;
+        Ok(())
+    }
+
+    pub fn withdraw(
+        ctx: Context<Withdraw>,
+        amount: u64,
+        max_x: u64,
+        max_y: u64,
+        expiration: i64,
+    ) -> Result<()> {
+        ctx.accounts.withdraw(amount, max_x, max_y, expiration)
+        // Ok(())
+    }
+
+    pub fn swap(ctx: Context<Swap>) -> Result<()> {
         Ok(())
     }
 }
-
-#[derive(Accounts)]
-pub struct Initialize {}

@@ -2,12 +2,12 @@ use crate::{assert_non_zero, assert_not_expired, AmmError, Config};
 use anchor_lang::prelude::*;
 use anchor_spl::{
     associated_token::AssociatedToken,
-    token::{mint_to, transfer_checked, MintTo, Token, TransferChecked},
+    token::{burn, transfer_checked, Burn, Token, TransferChecked},
     token_interface::{Mint, TokenAccount},
 };
 use constant_product_curve::ConstantProduct;
 #[derive(Accounts)]
-pub struct Deposit<'info> {
+pub struct Withdraw<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
     pub mint_x: InterfaceAccount<'info, Mint>,
@@ -32,7 +32,6 @@ pub struct Deposit<'info> {
         associated_token::authority = auth
     )]
     pub vault_y: InterfaceAccount<'info, TokenAccount>,
-
     #[account(
         mut,
         associated_token::mint = mint_x,
@@ -65,8 +64,8 @@ pub struct Deposit<'info> {
     pub associated_token_program: Program<'info, AssociatedToken>,
 }
 
-impl<'info> Deposit<'info> {
-    pub fn deposit(&mut self, amount: u64, max_x: u64, max_y: u64, expiration: i64) -> Result<()> {
+impl<'info> Withdraw<'info> {
+    pub fn withdraw(&mut self, amount: u64, max_x: u64, max_y: u64, expiration: i64) -> Result<()> {
         assert_not_expired!(expiration);
         assert_non_zero!([amount, max_x, max_y]);
 
@@ -76,7 +75,7 @@ impl<'info> Deposit<'info> {
         {
             true => (max_x, max_y),
             false => {
-                let amounts = ConstantProduct::xy_deposit_amounts_from_l(
+                let amounts = ConstantProduct::xy_withdraw_amounts_from_l(
                     self.vault_x.amount,
                     self.vault_y.amount,
                     self.mint_lp.supply,
@@ -89,24 +88,24 @@ impl<'info> Deposit<'info> {
         };
         // Check for slippage
         require!(x <= max_x && y <= max_y, AmmError::CurveError);
-        self.deposit_tokens(true, x)?;
-        self.deposit_tokens(false, y)?;
-        self.mint_lp_tokens(amount)?;
+        self.withdraw_tokens(true, x)?;
+        self.withdraw_tokens(false, y)?;
+        self.burn_lp_tokens(amount)?;
 
         Ok(())
     }
 
-    pub fn deposit_tokens(&self, is_x: bool, amount: u64) -> Result<()> {
+    pub fn withdraw_tokens(&self, is_x: bool, amount: u64) -> Result<()> {
         let (from, to, mint, decimals) = match is_x {
             true => (
-                self.user_x.to_account_info(),
-                self.vault_x.to_account_info(),
+                self.vault_x.to_account_info(), // from vault
+                self.user_x.to_account_info(),  // to user ata
                 self.mint_x.to_account_info(),
                 self.mint_x.decimals,
             ),
             false => (
-                self.user_y.to_account_info(),
                 self.vault_y.to_account_info(),
+                self.user_y.to_account_info(),
                 self.mint_y.to_account_info(),
                 self.mint_y.decimals,
             ),
@@ -119,17 +118,27 @@ impl<'info> Deposit<'info> {
             authority: self.auth.to_account_info(),
         };
 
-        let cpi_ctx = CpiContext::new(self.token_program.to_account_info(), cpi_accounts);
+        let config_key = self.config.key();
+
+        let seeds = &[b"auth", config_key.as_ref(), &[self.config.auth_bump]];
+
+        let signer_seeds = &[&seeds[..]];
+
+        let cpi_ctx = CpiContext::new_with_signer(
+            self.token_program.to_account_info(),
+            cpi_accounts,
+            signer_seeds,
+        );
 
         transfer_checked(cpi_ctx, amount, decimals)?;
 
         Ok(())
     }
 
-    pub fn mint_lp_tokens(&self, amount: u64) -> Result<()> {
-        let accounts = MintTo {
+    pub fn burn_lp_tokens(&self, amount: u64) -> Result<()> {
+        let accounts = Burn {
             mint: self.mint_lp.to_account_info(),
-            to: self.user_lp.to_account_info(),
+            from: self.user_lp.to_account_info(),
             authority: self.auth.to_account_info(),
         };
 
@@ -144,7 +153,7 @@ impl<'info> Deposit<'info> {
             signer_seeds,
         );
 
-        mint_to(cpi_ctx, amount)?;
+        burn(cpi_ctx, amount)?;
         Ok(())
     }
 }

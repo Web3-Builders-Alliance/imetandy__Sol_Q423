@@ -15,10 +15,10 @@ umi.use(signerIdentity(signer));
 
 (async () => {
     try {
-        const content = await readFile("./cluster1/generugmovie.png")
+        const content = await readFile("./cluster1/pulse.png")
         const image = createGenericFile(
             content, 
-            "Generug_3.png", 
+            "pulse.png", 
             {
                 contentType: "image/png"
             }
